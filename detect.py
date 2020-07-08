@@ -1,13 +1,16 @@
 import argparse
+import concurrent.futures
+import threading
 
 import torch.backends.cudnn as cudnn
 
+from sms_follower import Pipeline, consumer
 from utils import google_utils
 from utils.datasets import *
 from utils.utils import *
 
 
-def detect(save_img=False):
+def detect(pipeline, event, save_img=False):
     out, source, weights, view_img, save_txt, imgsz = \
         opt.output, opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size
     webcam = source == '0' or source.startswith('rtsp') or source.startswith('http') or source.endswith('.txt')
@@ -53,6 +56,7 @@ def detect(save_img=False):
     t0 = time.time()
     img = torch.zeros((1, 3, imgsz, imgsz), device=device)  # init img
     _ = model(img.half() if half else img) if device.type != 'cpu' else None  # run once
+
     for path, img, im0s, vid_cap in dataset:
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
@@ -91,6 +95,7 @@ def detect(save_img=False):
                 for c in det[:, -1].unique():
                     n = (det[:, -1] == c).sum()  # detections per class
                     s += '%g %ss, ' % (n, names[int(c)])  # add to string
+                pipeline.set_message(s, "Producer")
 
                 # Write results
                 for *xyxy, conf, cls in det:
@@ -104,7 +109,7 @@ def detect(save_img=False):
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=3)
 
             # Print time (inference + NMS)
-            print('%sDone. (%.3fs)' % (s, t2 - t1))
+            print('%sDone. (%.3fs)' % (s, t2 - t0))
 
             # Stream results
             if view_img:
@@ -132,8 +137,9 @@ def detect(save_img=False):
         print('Results saved to %s' % os.getcwd() + os.sep + out)
         if platform == 'darwin':  # MacOS
             os.system('open ' + save_path)
-
+    event.set()
     print('Done. (%.3fs)' % (time.time() - t0))
+    pipeline.set_message('Done. (%.3fs)' % (time.time() - t0), "Supervisor")
 
 
 if __name__ == '__main__':
@@ -156,9 +162,15 @@ if __name__ == '__main__':
     print(opt)
 
     with torch.no_grad():
-        detect()
+        # https://realpython.com/intro-to-python-threading/
+        pipeline = Pipeline()
+        event = threading.Event()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            executor.submit(detect, pipeline, event)
+            executor.submit(consumer, pipeline, event)
 
         # Update all models
         # for opt.weights in ['yolov5s.pt', 'yolov5m.pt', 'yolov5l.pt', 'yolov5x.pt', 'yolov3-spp.pt']:
         #    detect()
         #    create_pretrained(opt.weights, opt.weights)
+
