@@ -49,19 +49,19 @@ def consumer(pipeline, event):
 
     def relative_dict_str(dic):
         s = ''
-        for k, v in dic.items():
+        for k, v in sorted(dic.items()):
             sign = '+' if v >= 0 else ''  # neg will already put sign
-            s += f'{k}: {sign}{v}, '
+            s += f'  {k}: {sign}{v}\n'
         if s:
-            s = s[:-2]
+            s = s[:-1]
         return s
 
     def dict_str(dic):
         s = ''
-        for k, v in dic.items():
-            s += f'{k}: {v}, '
+        for k, v in sorted(dic.items()):
+            s += f'  {k}: {v}\n'
         if s:
-            s = s[:-2]
+            s = s[:-1]
         return s
 
     NUMB_TIME = 10.0
@@ -88,7 +88,7 @@ def consumer(pipeline, event):
             last = this
             last_time = time.time()
             logging.info("Sending message: %s  (queue size=%s)", delta, pipeline.qsize())
-            send_sms(f"I see: {dict_str(last)}\n  Changes: {relative_dict_str(delta)}", sms_number)
+            send_sms(f"I see...\n{dict_str(last)}\n Changes...\n{relative_dict_str(delta)}", sms_number)
 
     logging.info("Consumer received EXIT event. Exiting")
 
