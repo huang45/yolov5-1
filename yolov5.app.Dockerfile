@@ -10,3 +10,6 @@ COPY . /usr/src/app
 # Clean the weights and inference mountpoints, they must be mounted 
 # at run-time
 RUN rm -rf weights inference 
+
+RUN pip install huawei-lte-api==1.4.12
+
