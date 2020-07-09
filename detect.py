@@ -11,8 +11,8 @@ from utils.utils import *
 
 
 def detect(pipeline, event, save_img=False):
-    out, source, weights, view_img, save_txt, imgsz = \
-        opt.output, opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size
+    out, source, weights, view_img, save_txt, imgsz, sms, sms_url = \
+        opt.output, opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size, opt.sms, opt.sms_url
     webcam = source == '0' or source.startswith('rtsp') or source.startswith('http') or source.endswith('.txt')
 
     # Initialize
@@ -87,15 +87,18 @@ def detect(pipeline, event, save_img=False):
             txt_path = str(Path(out) / Path(p).stem) + ('_%g' % dataset.frame if dataset.mode == 'video' else '')
             s += '%gx%g ' % img.shape[2:]  # print string
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
+            det_dict = {}
             if det is not None and len(det):
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
-                # Print results
-                for c in det[:, -1].unique():
+                # build detect dict
+                for c in det[:, -1].unique():    # for all detected classes
                     n = (det[:, -1] == c).sum()  # detections per class
-                    s += '%g %ss, ' % (n, names[int(c)])  # add to string
-                pipeline.set_message(s, "Producer")
+                    name = names[int(c)]
+                    det_dict[name] = int(n)
+                for name, count in det_dict.items():
+                    s += '%g %ss, ' % (count, name)  # add to string
 
                 # Write results
                 for *xyxy, conf, cls in det:
@@ -107,6 +110,8 @@ def detect(pipeline, event, save_img=False):
                     if save_img or view_img:  # Add bbox to image
                         label = '%s %.2f' % (names[int(cls)], conf)
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=3)
+            det_dict.update({'sms_number': sms, 'sms_url': sms_url})
+            pipeline.set_message(det_dict, "Producer")
 
             # Print time (inference + NMS)
             print('%sDone. (%.3fs)' % (s, t2 - t0))
@@ -162,6 +167,8 @@ if __name__ == '__main__':
     parser.add_argument('--classes', nargs='+', type=int, help='filter by class')
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--augment', action='store_true', help='augmented inference')
+    parser.add_argument('--sms', type=str, default='', help='sms for detections')
+    parser.add_argument('--sms-url', type=str, default='', help='sms api url for detections')
     opt = parser.parse_args()
     opt.img_size = check_img_size(opt.img_size)
     print(opt)
