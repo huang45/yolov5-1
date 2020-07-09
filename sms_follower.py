@@ -2,9 +2,12 @@ import queue
 import logging
 import random
 import time
+import datetime
+import pytz
 
 from sms_monster import SmsMonster
 
+TIMEZONE = pytz.timezone("Europe/London")
 
 log_format = "%(asctime)s: %(message)s"
 logging.basicConfig(format=log_format, level=logging.INFO)
@@ -36,6 +39,10 @@ def dummy_producer(pipeline, event):
         pipeline.set_message(message, "Producer")
 
     logging.info("Producer received EXIT event. Exiting")
+
+
+def timestr():
+    return datetime.datetime.now(tz=TIMEZONE).isoformat()
 
 
 def consumer(pipeline, event):
@@ -88,7 +95,7 @@ def consumer(pipeline, event):
             last = this
             last_time = time.time()
             logging.info("Sending message: %s  (queue size=%s)", delta, pipeline.qsize())
-            send_sms(f"I see...\n{dict_str(last)}\n Changes...\n{relative_dict_str(delta)}", sms_number)
+            send_sms(f"At {timestr()} Camera sees...\n{dict_str(last)}\nChanges...\n{relative_dict_str(delta)}", sms_number)
 
     logging.info("Consumer received EXIT event. Exiting")
 
