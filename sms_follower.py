@@ -107,8 +107,6 @@ def consumer(pipeline, event):
     mode = 'notify'
     numb_secs = NUMB_TIME
     while not event.is_set() or not pipeline.empty():
-        if 1:
-            mode, numb_secs = process_input(mode, numb_secs, sms_number)
         this = pipeline.get_message("Consumer")
         # extract SMS details and create monster if new or changed
         sms_number = this.pop('sms_number')
@@ -119,6 +117,9 @@ def consumer(pipeline, event):
                 sms_url = new_sms_url
             except Exception as exc:
                 pass
+        if 1:
+            mode, numb_secs = process_input(mode, numb_secs, sms_number)
+
         delta = get_delta(last, this)
         if not delta:
             logging.debug("consumer received identical det list: %s", this)
