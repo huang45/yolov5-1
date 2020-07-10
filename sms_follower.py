@@ -13,7 +13,7 @@ log_format = "%(asctime)s: %(message)s"
 logging.basicConfig(format=log_format, level=logging.INFO)
 if 1:
     logging.getLogger(__name__).setLevel(logging.DEBUG)
-# logging.getLogger('dicttoxml').setLevel(logging.ERROR)
+logging.getLogger('dicttoxml').setLevel(logging.ERROR)
 
 
 class Pipeline(queue.Queue):
