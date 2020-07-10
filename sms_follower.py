@@ -12,7 +12,8 @@ TIMEZONE = pytz.timezone("Europe/London")
 log_format = "%(asctime)s: %(message)s"
 logging.basicConfig(format=log_format, level=logging.INFO)
 if 1:
-    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger(__name__).setLevel(logging.DEBUG)
+# logging.getLogger('dicttoxml').setLevel(logging.ERROR)
 
 
 class Pipeline(queue.Queue):
