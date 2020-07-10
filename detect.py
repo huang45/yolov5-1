@@ -149,7 +149,6 @@ def detect(pipeline, event, save_img=False):
             os.system('open ' + save_path)
     event.set()
     print('Done. (%.3fs)' % (time.time() - t0))
-    pipeline.set_message('Done. (%.3fs)' % (time.time() - t0), "Supervisor")
 
 
 if __name__ == '__main__':
