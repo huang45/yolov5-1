@@ -12,7 +12,7 @@ TIMEZONE = pytz.timezone("Europe/London")
 log_format = "%(asctime)s: %(message)s"
 logging.basicConfig(format=log_format, level=logging.INFO)
 if 1:
-    logging.getLogger(__name__).setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger('dicttoxml').setLevel(logging.ERROR)
 
 
@@ -82,13 +82,13 @@ def consumer(pipeline, event):
             s = s[:-1]
         return s
 
-    def process_input(mode, numb_secs, sms_number):
+    def process_input(mo, numb_secs, sms_number):
         command = get_sms().lower()
         if command == 'quiet':
-            mode = 'quiet'
+            mo = 'quiet'
             send_sms("going quiet. Send 'notify' for notifications", sms_number)
         elif command == 'notify':
-            mode = 'notify'
+            mo = 'notify'
             send_sms("notifying. Send 'quiet' to prevent notifications", sms_number)
         elif command.startswith('numb'):
             try:
@@ -96,7 +96,7 @@ def consumer(pipeline, event):
                 send_sms(f"changing numb time to {numb_secs} seconds", sms_number)
             except (IndexError, ValueError) as exc:
                 send_sms(f"numb-time unchanged", sms_number)
-        return mode, numb_secs
+        return mo, numb_secs
 
 
     NUMB_TIME = 10.0
