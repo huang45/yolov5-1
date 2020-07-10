@@ -21,13 +21,13 @@ class Pipeline(queue.Queue):
         super().__init__(maxsize=0)
 
     def get_message(self, name):
-        logging.debug("%s:about to get from queue", name)
+        # logging.debug("%s:about to get from queue", name)
         det_dict = self.get()
         logging.debug("%s:got %s from queue", name, det_dict)
         return det_dict
 
     def set_message(self, det_dict, name):
-        logging.debug("%s:about to add %s to queue", name, det_dict)
+        # logging.debug("%s:about to add %s to queue", name, det_dict)
         self.put(det_dict)
         logging.debug("%s:added %s to queue. Length %d", name, det_dict, self.qsize())
 
@@ -107,6 +107,8 @@ def consumer(pipeline, event):
     mode = 'notify'
     numb_secs = NUMB_TIME
     while not event.is_set() or not pipeline.empty():
+        if 1:
+            mode, numb_secs = process_input(mode, numb_secs, sms_number)
         this = pipeline.get_message("Consumer")
         # extract SMS details and create monster if new or changed
         sms_number = this.pop('sms_number')
@@ -126,8 +128,8 @@ def consumer(pipeline, event):
             last_time = time.time()
             logging.info("Sending message: %s  (queue size=%s)", delta, pipeline.qsize())
             send_sms(f"At {timestr()} Camera sees...\n{dict_str(last)}\nChanges...\n{relative_dict_str(delta)}", sms_number)
-        if 1:
-            mode, numb_secs = process_input(mode, numb_secs, sms_number)
+        else:
+            logging.debug("numb or quiet")
 
     logging.info("Consumer received EXIT event. Exiting")
 
