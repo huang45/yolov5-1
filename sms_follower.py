@@ -54,6 +54,16 @@ def consumer(pipeline, event):
         else:
             logging.debug(f"dummy send: {number}, {msg}")
 
+    def get_sms():
+        logging.debug("getting sms")
+        if sms_monster is not None:
+            received = sms_monster.get_next_message_content() or ''
+            logging.debug(f"got: {received}")
+        else:
+            received = ''
+            logging.debug(f"dummy receive: {received}")
+        return received
+
     def relative_dict_str(dic):
         s = ''
         for k, v in sorted(dic.items()):
@@ -71,11 +81,30 @@ def consumer(pipeline, event):
             s = s[:-1]
         return s
 
+    def process_input(mode, numb_secs, sms_number):
+        command = get_sms().lower()
+        if command == 'quiet':
+            mode = 'quiet'
+            send_sms("going quiet. Send 'notify' for notifications", sms_number)
+        elif command == 'notify':
+            mode = 'notify'
+            send_sms("notifying. Send 'quiet' to prevent notifications", sms_number)
+        elif command.startswith('numb'):
+            try:
+                numb_secs = int(command.split()[1])
+                send_sms(f"changing numb time to {numb_secs} seconds", sms_number)
+            except (IndexError, ValueError) as exc:
+                send_sms(f"numb-time unchanged", sms_number)
+        return mode, numb_secs
+
+
     NUMB_TIME = 10.0
     last = {}
     last_time = time.time() - NUMB_TIME
     sms_url = None
     sms_monster = None
+    mode = 'notify'
+    numb_secs = NUMB_TIME
     while not event.is_set() or not pipeline.empty():
         this = pipeline.get_message("Consumer")
         # extract SMS details and create monster if new or changed
@@ -91,16 +120,19 @@ def consumer(pipeline, event):
         if not delta:
             logging.debug("consumer received identical det list: %s", this)
             continue
-        if time.time() > last_time + NUMB_TIME:
+        if (time.time() > last_time + numb_secs) and (mode == 'notify'):
             last = this
             last_time = time.time()
             logging.info("Sending message: %s  (queue size=%s)", delta, pipeline.qsize())
             send_sms(f"At {timestr()} Camera sees...\n{dict_str(last)}\nChanges...\n{relative_dict_str(delta)}", sms_number)
+        if 1:
+            mode, numb_secs = process_input(mode, numb_secs, sms_number)
 
     logging.info("Consumer received EXIT event. Exiting")
 
 
 def get_delta(last, this):
+    """return the delta of changed classes"""
     symmetric_diff = set(last.items()) ^ set(this.items())
     gained_or_lost = dict(symmetric_diff).keys()
     delta = {gl: (this.get(gl, 0) - last.get(gl, 0)) for gl in gained_or_lost}
