@@ -98,41 +98,43 @@ def consumer(pipeline, event):
                 send_sms(f"numb-time unchanged", sms_number)
         return mo, numb_secs
 
+    try:
+        NUMB_TIME = 10.0
+        last = {}
+        last_time = time.time() - NUMB_TIME
+        sms_url = None
+        sms_monster = None
+        mode = 'notify'
+        numb_secs = NUMB_TIME
+        while not event.is_set() or not pipeline.empty():
+            this = pipeline.get_message("Consumer")
+            # extract SMS details and create monster if new or changed
+            sms_number = this.pop('sms_number')
+            new_sms_url = this.pop('sms_url')
+            if sms_url != new_sms_url:
+                try:
+                    sms_monster = SmsMonster(new_sms_url)
+                    sms_url = new_sms_url
+                except Exception as exc:
+                    pass
+            if 1:
+                mode, numb_secs = process_input(mode, numb_secs, sms_number)
 
-    NUMB_TIME = 10.0
-    last = {}
-    last_time = time.time() - NUMB_TIME
-    sms_url = None
-    sms_monster = None
-    mode = 'notify'
-    numb_secs = NUMB_TIME
-    while not event.is_set() or not pipeline.empty():
-        this = pipeline.get_message("Consumer")
-        # extract SMS details and create monster if new or changed
-        sms_number = this.pop('sms_number')
-        new_sms_url = this.pop('sms_url')
-        if sms_url != new_sms_url:
-            try:
-                sms_monster = SmsMonster(new_sms_url)
-                sms_url = new_sms_url
-            except Exception as exc:
-                pass
-        if 1:
-            mode, numb_secs = process_input(mode, numb_secs, sms_number)
+            delta = get_delta(last, this)
+            if not delta:
+                logging.debug("consumer received identical det list: %s", this)
+                continue
+            if (time.time() > last_time + numb_secs) and (mode == 'notify'):
+                last = this
+                last_time = time.time()
+                logging.info("Sending message: %s  (queue size=%s)", delta, pipeline.qsize())
+                send_sms(f"At {timestr()} Camera sees...\n{dict_str(last)}\nChanges...\n{relative_dict_str(delta)}", sms_number)
+            else:
+                logging.debug("numb or quiet")
 
-        delta = get_delta(last, this)
-        if not delta:
-            logging.debug("consumer received identical det list: %s", this)
-            continue
-        if (time.time() > last_time + numb_secs) and (mode == 'notify'):
-            last = this
-            last_time = time.time()
-            logging.info("Sending message: %s  (queue size=%s)", delta, pipeline.qsize())
-            send_sms(f"At {timestr()} Camera sees...\n{dict_str(last)}\nChanges...\n{relative_dict_str(delta)}", sms_number)
-        else:
-            logging.debug("numb or quiet")
-
-    logging.info("Consumer received EXIT event. Exiting")
+        logging.info("Consumer received EXIT event. Exiting")
+    except Exception as exc:
+        logging.exception('consumer')
 
 
 def get_delta(last, this):
