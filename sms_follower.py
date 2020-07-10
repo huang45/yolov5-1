@@ -11,7 +11,7 @@ TIMEZONE = pytz.timezone("Europe/London")
 
 log_format = "%(asctime)s: %(message)s"
 logging.basicConfig(format=log_format, level=logging.INFO)
-if 1:
+if 0:
     logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger('dicttoxml').setLevel(logging.ERROR)
 
@@ -100,6 +100,7 @@ def consumer(pipeline, event):
 
     while 1:
         try:
+            logging.debug(">>>>> starting consumer <<<<<")
             NUMB_TIME = 10.0
             last = {}
             last_time = time.time() - NUMB_TIME
@@ -117,7 +118,7 @@ def consumer(pipeline, event):
                         sms_monster = SmsMonster(new_sms_url)
                         sms_url = new_sms_url
                     except Exception as exc:
-                        pass
+                        logging.exception('while instantiating new Monster')
                 if 1:
                     mode, numb_secs = process_input(mode, numb_secs, sms_number)
 
