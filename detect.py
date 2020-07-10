@@ -118,6 +118,7 @@ def detect(pipeline, event, save_img=False):
 
             # kludge
             save_img = True
+            save_img = False
             view_img = False
             save_path += '%s.png' % str(t1)
 
@@ -148,7 +149,7 @@ def detect(pipeline, event, save_img=False):
         if platform == 'darwin':  # MacOS
             os.system('open ' + save_path)
     event.set()
-    print('Done. (%.3fs)' % (time.time() - t0))
+    print('Detector Done. (%.3fs)' % (time.time() - t0))
 
 
 if __name__ == '__main__':
