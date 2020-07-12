@@ -11,8 +11,8 @@ from utils.utils import *
 
 
 def detect(pipeline, event, save_img=False):
-    out, source, weights, view_img, save_txt, imgsz, sms, sms_url = \
-        opt.output, opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size, opt.sms, opt.sms_url
+    out, source, source_name, weights, view_img, save_txt, imgsz, sms, sms_url = \
+        opt.output, opt.source, opt.source_name, opt.weights, opt.view_img, opt.save_txt, opt.img_size, opt.sms, opt.sms_url
     webcam = source == '0' or source.startswith('rtsp') or source.startswith('http') or source.endswith('.txt')
 
     # Initialize
@@ -110,7 +110,7 @@ def detect(pipeline, event, save_img=False):
                     if save_img or view_img:  # Add bbox to image
                         label = '%s %.2f' % (names[int(cls)], conf)
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=3)
-            det_dict.update({'sms_number': sms, 'sms_url': sms_url})
+            det_dict.update({'sms_number': sms, 'sms_url': sms_url, 'source_name': source_name})
             pipeline.set_message(det_dict, "Producer")
 
             # Print time (inference + NMS)
@@ -169,6 +169,7 @@ if __name__ == '__main__':
     parser.add_argument('--augment', action='store_true', help='augmented inference')
     parser.add_argument('--sms', type=str, default='', help='sms for detections')
     parser.add_argument('--sms-url', type=str, default='', help='sms api url for detections')
+    parser.add_argument('--source-name', type=str, default='', help='camera or feed name, for tagging output')
     opt = parser.parse_args()
     opt.img_size = check_img_size(opt.img_size)
     print(opt)

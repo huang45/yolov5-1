@@ -53,7 +53,7 @@ def consumer(pipeline, event):
             sms_monster.simple_send(number, msg)
             logging.debug(f"actual send: {number}, {msg}")
         else:
-            logging.debug(f"dummy send: {number}, {msg}")
+            logging.info(f"dummy send: {number}, {msg}")
 
     def get_sms():
         logging.debug("getting sms")
@@ -62,7 +62,7 @@ def consumer(pipeline, event):
             logging.debug(f"got: {received}")
         else:
             received = ''
-            logging.debug(f"dummy receive: {received}")
+            logging.info(f"dummy receive: {received}")
         return received
 
     def relative_dict_str(dic):
@@ -113,6 +113,7 @@ def consumer(pipeline, event):
                 # extract SMS details and create monster if new or changed
                 sms_number = this.pop('sms_number')
                 new_sms_url = this.pop('sms_url')
+                source_name = this.pop('source_name')
                 if sms_url != new_sms_url:
                     try:
                         sms_monster = SmsMonster(new_sms_url)
@@ -130,7 +131,7 @@ def consumer(pipeline, event):
                     last = this
                     last_time = time.time()
                     logging.info("Sending message: %s  (queue size=%s)", delta, pipeline.qsize())
-                    send_sms(f"At {timestr()} Camera sees...\n{dict_str(last)}\nChanges...\n{relative_dict_str(delta)}", sms_number)
+                    send_sms(f"At {timestr()} Camera{' ' + source_name + ' ' if source_name else ' '}sees...\n{dict_str(last)}\nChanges...\n{relative_dict_str(delta)}", sms_number)
                 else:
                     logging.debug("numb or quiet")
 
