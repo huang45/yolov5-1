@@ -29,4 +29,11 @@ sudo docker run -it --rm \
   --mount src=$(pwd)/inference,target=/usr/src/app/inference/,type=bind \
   yolov5-app:latest python3 detect.py --source rtsp://admin:password@192.168.0.31:554//h264Preview_01_sub
 
+sudo apt-get purge nvidia* cuda* docker*
+sudo apt-get --purge remove "*nvidia*"
+
+sudo apt-get autoremove
+sudo apt-get autoclean
+sudo rm -rf /usr/local/cuda*
+
 

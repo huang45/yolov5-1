@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/l4t-ml:r32.4.2-py3
+FROM nvcr.io/nvidia/l4t-ml:r32.4.3-py3
 
 MAINTAINER russ.ferriday@gmail.com
 
@@ -21,13 +21,13 @@ RUN pip3 -V
 # It tells me 9.0.1 -- pretty old -- so, let's grab latest to 
 #   help us diagnose any dependency issues. Perhaps this belongs 
 #   in the base Dockerfile? @dusty_nv?
-RUN sudo -H pip3 install --upgrade pip>=20.1.1
+RUN  pip3 install --upgrade pip>=20.1.1
 
 
 # Now get the additional python deps
 RUN pip3 install \
   PyYAML>=5.3 \
-  tqdm 
+  tqdm
 
 # Revert to pinned version of numpy due to cocodataset issue discussed 
 #   here... 
@@ -37,3 +37,4 @@ RUN pip3 install \
 
 # What do we have, so far?
 RUN pip3 list
+

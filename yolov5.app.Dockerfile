@@ -1,5 +1,8 @@
 FROM yolov5-base
 
+# ensure ping present... in one image it was not
+RUN apt-get install -y inetutils-ping
+
 # add recent pypi packages
 RUN pip install huawei-lte-api==1.4.12 pytz==2020.1
 
