@@ -1,5 +1,6 @@
 import argparse
 import concurrent.futures
+import logging
 import threading
 
 import torch.backends.cudnn as cudnn
@@ -8,6 +9,17 @@ from sms_follower import Pipeline, consumer
 from utils import google_utils
 from utils.datasets import *
 from utils.utils import *
+
+
+if 1:
+    logging.getLogger(__name__).setLevel(logging.DEBUG)
+
+
+def wrapped_detect(pipeline, event, save_img=False):
+    try:
+        detect(pipeline, event, save_img)
+    except Exception as exc:
+        logging.exception('detect')
 
 
 def detect(pipeline, event, save_img=False):
@@ -179,7 +191,7 @@ if __name__ == '__main__':
         pipeline = Pipeline()
         event = threading.Event()
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-            executor.submit(detect, pipeline, event)
+            executor.submit(wrapped_detect, pipeline, event)
             executor.submit(consumer, pipeline, event)
 
         # Update all models
