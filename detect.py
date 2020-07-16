@@ -105,7 +105,8 @@ def detect(pipeline, event, save_img=False):
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
                 # build detect dict
-                for c in det[:, -1].unique():    # for all detected classes
+                for c in det[:, -1].detach().unique():    # for all detected classes
+                    # detach above explained here: https://github.com/pytorch/pytorch/issues/41389
                     n = (det[:, -1] == c).sum()  # detections per class
                     name = names[int(c)]
                     det_dict[name] = int(n)

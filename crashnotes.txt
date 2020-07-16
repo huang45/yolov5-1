@@ -278,3 +278,197 @@ RuntimeError: isDifferentiableType(variable.scalar_type()) INTERNAL ASSERT FAILE
  57  	        except BaseException as exc:
  58  	            self.future.set_exception(exc)
 
+
+
+
+
+
+---- 
+after adding try wrapper around detect...
+
+russ@nv0:/xavier_ssd/russ/dev/ext/yolov5$ ./*four*
+++ pwd
+++ pwd
++ sudo docker run -it --rm --runtime nvidia --network host --mount src=/xavier_ssd/russ/dev/ext/yolov5/weights,target=/usr/src/app/weights/,type=bind --mount src=/xavier_ssd/russ/dev/ext/yolov5/inference,target=/usr/src/app/inference/,type=bind yolov5-app:latest ping -c 2 192.168.0.32
+PING 192.168.0.32 (192.168.0.32): 56 data bytes
+64 bytes from 192.168.0.32: icmp_seq=0 ttl=64 time=1.143 ms
+64 bytes from 192.168.0.32: icmp_seq=1 ttl=64 time=0.877 ms
+--- 192.168.0.32 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max/stddev = 0.877/1.010/1.143/0.133 ms
+++ pwd
+++ pwd
++ sudo docker run -it --runtime nvidia --network host --mount src=/xavier_ssd/russ/dev/ext/yolov5/weights,target=/usr/src/app/weights/,type=bind --mount src=/xavier_ssd/russ/dev/ext/yolov5/inference,target=/usr/src/app/inference/,type=bind yolov5-app:latest python3 detect.py --source 'rtsp://admin:onion*skin@192.168.0.32:554//h264Preview_01_sub' --sms +447429518822 --sms-url http://admin:mary-douglas-01@192.168.8.1/
+Namespace(agnostic_nms=False, augment=False, classes=None, conf_thres=0.4, device='', fourcc='mp4v', img_size=640, iou_thres=0.5, output='inference/output', save_txt=False, sms='+447429518822', sms_url='http://admin:mary-douglas-01@192.168.8.1/', source='rtsp://admin:onion*skin@192.168.0.32:554//h264Preview_01_sub', source_name='', view_img=False, weights='weights/yolov5s.pt')
+Using CUDA device0 _CudaDeviceProperties(name='Xavier', total_memory=7771MB)
+
+/usr/local/lib/python3.6/dist-packages/torch/serialization.py:644: SourceChangeWarning: source code of class 'torch.nn.modules.container.Sequential' has changed. you can retrieve the original source code by accessing the object's source attribute or set `torch.nn.Module.dump_patches = True` and use the patch tool to revert the changes.
+  warnings.warn(msg, SourceChangeWarning)
+/usr/local/lib/python3.6/dist-packages/torch/serialization.py:644: SourceChangeWarning: source code of class 'torch.nn.modules.conv.Conv2d' has changed. you can retrieve the original source code by accessing the object's source attribute or set `torch.nn.Module.dump_patches = True` and use the patch tool to revert the changes.
+  warnings.warn(msg, SourceChangeWarning)
+/usr/local/lib/python3.6/dist-packages/torch/serialization.py:644: SourceChangeWarning: source code of class 'torch.nn.modules.batchnorm.BatchNorm2d' has changed. you can retrieve the original source code by accessing the object's source attribute or set `torch.nn.Module.dump_patches = True` and use the patch tool to revert the changes.
+  warnings.warn(msg, SourceChangeWarning)
+/usr/local/lib/python3.6/dist-packages/torch/serialization.py:644: SourceChangeWarning: source code of class 'torch.nn.modules.activation.LeakyReLU' has changed. you can retrieve the original source code by accessing the object's source attribute or set `torch.nn.Module.dump_patches = True` and use the patch tool to revert the changes.
+  warnings.warn(msg, SourceChangeWarning)
+/usr/local/lib/python3.6/dist-packages/torch/serialization.py:644: SourceChangeWarning: source code of class 'torch.nn.modules.container.ModuleList' has changed. you can retrieve the original source code by accessing the object's source attribute or set `torch.nn.Module.dump_patches = True` and use the patch tool to revert the changes.
+  warnings.warn(msg, SourceChangeWarning)
+/usr/local/lib/python3.6/dist-packages/torch/serialization.py:644: SourceChangeWarning: source code of class 'torch.nn.modules.pooling.MaxPool2d' has changed. you can retrieve the original source code by accessing the object's source attribute or set `torch.nn.Module.dump_patches = True` and use the patch tool to revert the changes.
+  warnings.warn(msg, SourceChangeWarning)
+/usr/local/lib/python3.6/dist-packages/torch/serialization.py:644: SourceChangeWarning: source code of class 'torch.nn.modules.upsampling.Upsample' has changed. you can retrieve the original source code by accessing the object's source attribute or set `torch.nn.Module.dump_patches = True` and use the patch tool to revert the changes.
+  warnings.warn(msg, SourceChangeWarning)
+1/1: rtsp://admin:onion*skin@192.168.0.32:554//h264Preview_01_sub...  success (640x480 at 0.00 FPS).
+
+/usr/src/app/utils/utils.py:580: UserWarning: This overload of nonzero is deprecated:
+	nonzero()
+Consider using one of the following signatures instead:
+	nonzero(*, bool as_tuple) (Triggered internally at  /media/nvidia/WD_NVME/PyTorch/JetPack_4.4/GA/pytorch-v1.6.0-rc2/torch/csrc/utils/python_arg_parser.cpp:766.)
+  i, j = (x[:, 5:] > conf_thres).nonzero().t()
+2020-07-15 20:55:53,769: detect
+Traceback (most recent call last):
+  File "detect.py", line 20, in wrapped_detect
+    detect(pipeline, event, save_img)
+  File "detect.py", line 108, in detect
+    for c in det[:, -1].unique():    # for all detected classes
+  File "/usr/local/lib/python3.6/dist-packages/torch/tensor.py", line 386, in unique
+    return torch.unique(self, sorted=sorted, return_inverse=return_inverse, return_counts=return_counts, dim=dim)
+  File "/usr/local/lib/python3.6/dist-packages/torch/_jit_internal.py", line 247, in fn
+    return if_false(*args, **kwargs)
+  File "/usr/local/lib/python3.6/dist-packages/torch/_jit_internal.py", line 247, in fn
+    return if_false(*args, **kwargs)
+  File "/usr/local/lib/python3.6/dist-packages/torch/functional.py", line 695, in _return_output
+    output, _, _ = _unique_impl(input, sorted, return_inverse, return_counts, dim)
+  File "/usr/local/lib/python3.6/dist-packages/torch/functional.py", line 612, in _unique_impl
+    return_counts=return_counts,
+RuntimeError: isDifferentiableType(variable.scalar_type()) INTERNAL ASSERT FAILED at "/media/nvidia/WD_NVME/PyTorch/JetPack_4.4/GA/pytorch-v1.6.0-rc2/torch/csrc/autograd/functions/utils.h":59, please report a bug to PyTorch.
+^CTraceback (most recent call last):
+  File "detect.py", line 195, in <module>
+    executor.submit(consumer, pipeline, event)
+  File "/usr/lib/python3.6/concurrent/futures/_base.py", line 611, in __exit__
+    self.shutdown(wait=True)
+  File "/usr/lib/python3.6/concurrent/futures/thread.py", line 152, in shutdown
+    t.join()
+  File "/usr/lib/python3.6/threading.py", line 1056, in join
+    self._wait_for_tstate_lock()
+  File "/usr/lib/python3.6/threading.py", line 1072, in _wait_for_tstate_lock
+    elif lock.acquire(block, timeout):
+KeyboardInterrupt
+^CError in atexit._run_exitfuncs:
+Traceback (most recent call last):
+  File "/usr/lib/python3.6/concurrent/futures/thread.py", line 40, in _python_exit
+    t.join()
+  File "/usr/lib/python3.6/threading.py", line 1056, in join
+    self._wait_for_tstate_lock()
+  File "/usr/lib/python3.6/threading.py", line 1072, in _wait_for_tstate_lock
+    elif lock.acquire(block, timeout):
+KeyboardInterrupt
+terminate called without an active exception
+^C^C
+russ@nv0:/xavier_ssd/russ/dev/ext/yolov5$ sudo docker run -it --rm --runtime nvidia --network host --mount src=/xavier_ssd/russ/dev/ext/yolov5/weights,target=/usr/src/app/weights/,type=bind --mount src=/xavier_ssd/russ/dev/ext/yolov5/inference,target=/usr/src/app/inference/,type=bind yolov5-app:latest bash
+root@nv0:/usr/src/app# pip freeze
+absl-py==0.9.0
+appdirs==1.4.4
+astor==0.8.1
+attrs==19.3.0
+backcall==0.2.0
+bleach==3.1.5
+certifi==2020.6.20
+chardet==3.0.4
+cupy==8.0.0b4
+cycler==0.10.0
+Cython==0.29.20
+decorator==4.4.2
+defusedxml==0.6.0
+dicttoxml==1.7.4
+entrypoints==0.3
+fastrlock==0.5
+future==0.18.2
+futures==3.1.1
+gast==0.2.2
+google-pasta==0.2.0
+grpcio==1.30.0
+h5py==2.10.0
+huawei-lte-api==1.4.12
+idna==2.10
+importlib-metadata==1.7.0
+ipykernel==5.3.0
+ipython==7.16.1
+ipython-genutils==0.2.0
+ipywidgets==7.5.1
+jedi==0.17.1
+Jinja2==2.11.2
+joblib==0.16.0
+json5==0.9.5
+jsonschema==3.2.0
+jupyter==1.0.0
+jupyter-client==6.1.5
+jupyter-console==6.1.0
+jupyter-core==4.6.3
+jupyterlab==2.1.5
+jupyterlab-server==1.1.5
+Keras-Applications==1.0.8
+Keras-Preprocessing==1.0.5
+llvmlite==0.33.0
+Mako==1.1.3
+Markdown==3.2.2
+MarkupSafe==1.1.1
+matplotlib==2.1.1
+mistune==0.8.4
+mock==3.0.5
+nbconvert==5.6.1
+nbformat==5.0.7
+notebook==6.0.3
+numba==0.50.0
+numpy==1.17.5
+onnx==1.7.0
+opt-einsum==3.2.1
+packaging==20.4
+pandas==1.0.5
+pandocfilters==1.4.2
+parso==0.7.0
+pexpect==4.8.0
+pickleshare==0.7.5
+Pillow==7.2.0
+prometheus-client==0.8.0
+prompt-toolkit==3.0.5
+protobuf==3.12.2
+ptyprocess==0.6.0
+pybind11==2.5.0
+pycuda==2019.1.2
+Pygments==2.2.0
+pyparsing==2.2.0
+pyrsistent==0.16.0
+python-dateutil==2.6.1
+pytools==2020.3.1
+pytz==2020.1
+PyYAML==3.12
+pyzmq==19.0.1
+qtconsole==4.7.5
+QtPy==1.9.0
+requests==2.24.0
+scikit-learn==0.23.1
+scipy==1.5.0
+Send2Trash==1.5.0
+six==1.15.0
+tensorboard==1.15.0
+tensorflow==1.15.2+nv20.6
+tensorflow-estimator==1.15.1
+termcolor==1.1.0
+terminado==0.8.3
+testpath==0.4.4
+threadpoolctl==2.1.0
+torch==1.6.0
+torchaudio==0.6.0a0+d6f81d1
+torchvision==0.7.0a0+6631b74
+tornado==6.0.4
+tqdm==4.47.0
+traitlets==4.3.3
+typing-extensions==3.7.4.2
+urllib3==1.25.9
+wcwidth==0.2.5
+webencodings==0.5.1
+Werkzeug==1.0.1
+widgetsnbextension==3.5.1
+wrapt==1.12.1
+xmltodict==0.12.0
+zipp==3.1.0
+
