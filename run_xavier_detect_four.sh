@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 CAM_IP=192.168.2.100
-CAM_NAME=Cam04
+CAM_NAME=CamFour
 #sudo docker run -it --rm \
 #  --runtime nvidia \
 #  --network host \
