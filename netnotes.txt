@@ -1,0 +1,32 @@
+  163  ls /etc/network/interfaces.d/
+  164  sudo vi /etc/network/interfaces.d/if-eth0
+
+#  /etc/network/interfaces.d/if-eth0 
+auto eth0
+iface eth0 inet static
+        address 192.168.2.1
+        netmask 255.255.255.0
+        gateway 192.168.2.1
+        dns-nameservers 8.8.8.8 8.8.4.4
+
+  165  sudo ip a flush eth0
+  166  sudo systemctl restart networking.service ce
+  167  cec
+  168  sudo systemctl restart networking.service 
+  169  systemctl status networking.service
+  170  ifconfig
+
+sudo vi /etc/dhcp/dhcpd.conf
+
+.
+.
+option domain-name "topiasystems.lab";
+option domain-name-servers 8.8.8.8 ;
+authoritative;
+subnet 192.168.2.0 netmask 255.255.255.0 {
+        range 192.168.2.100 192.168.2.200;
+        option routers 192.168.8.1;
+        default-lease-time 300;
+        max-lease-time 600;
+}
+
