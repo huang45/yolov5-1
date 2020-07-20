@@ -43,6 +43,10 @@ def dummy_producer(pipeline, event):
 
 
 def timestr():
+    return datetime.datetime.now(tz=TIMEZONE).strftime('%H:%M:%S%z')
+
+
+def fulltimestr():
     return datetime.datetime.now(tz=TIMEZONE).isoformat()
 
 
@@ -131,7 +135,11 @@ def consumer(pipeline, event):
                     last = this
                     last_time = time.time()
                     logging.info("Sending message: %s  (queue size=%s)", delta, pipeline.qsize())
-                    send_sms(f"At {timestr()} Camera{' ' + source_name + ' ' if source_name else ' '}sees...\n{dict_str(last)}\nChanges...\n{relative_dict_str(delta)}", sms_number)
+                    send_sms(f"At {timestr()} {source_name if source_name else 'Camera'} sees...\n"
+                             f"{dict_str(last)}\n"
+                             f"Changes...\n"
+                             f"{relative_dict_str(delta)}\n"
+                             f"Sent at {fulltimestr()}", sms_number)
                 else:
                     logging.debug("numb or quiet")
 
